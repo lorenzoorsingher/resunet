@@ -1,27 +1,36 @@
-from model_files import model
-from model_files.resunet import ResNetUNet
-
-import cv2 as cv
-from torch.utils.data import Dataset, DataLoader
-from dataLoader import CustomDataset
-import numpy as np
-import torch
-import torch.nn as nn
-from torch.optim import SGD
-import os
-from copy import copy
-import time
-
 #@title Training Loop
+
+import os
+import time
+from copy import copy
+
+import torch
+from torch.utils.data import DataLoader
+from torch.optim import SGD
+import numpy as np
+import cv2 as cv
+from dotenv import load_dotenv
+
+from model_files.resunet import ResNetUNet
+from dataLoader import CustomDataset
 
 import lpips
 
+load_dotenv()
+# Xmple_path = os.getenv('XMPLE_PATH')
+# ymple_path = os.getenv('YMPLE_PATH')
+jsonpath = os.getenv('JSON_PATH')
+datasetpath = os.getenv('DATA_PATH')
+colorpath = datasetpath + "color/"
+bwpath = datasetpath + "bw/"
+savepath = os.getenv('SAVE_PATH')
+
 LOAD_CHKP = False
 VIS_DEBUG = True
-SAVE_PATH = "/content/drive/MyDrive/tesi/data/lfw/data/checkpoints/"
+SAVE_PATH = savepath
 BATCH = 32
 EPOCH = 300
-VISUAL = 10
+VISUAL = 1
 LR = 1e-3
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print("[INFO] training using {}...".format(DEVICE))
@@ -40,9 +49,9 @@ os.mkdir(img_savepath)
 #ae = model.SimplerAE2().to(DEVICE)
 model = ResNetUNet().to(DEVICE)
 
-insize, outsize = ((128,128),(128,128))
+insize, outsize = ((32,32),(32,32))
 #load the custom dattaset and correspondent dataloader
-dataset = CustomDataset(insize, outsize)
+dataset = CustomDataset(insize, outsize, datasetpath, jsonpath)
 data_loader = DataLoader(dataset, batch_size=BATCH, shuffle=True)
 
 #print model and parameters number
@@ -110,7 +119,7 @@ for i in range(EPOCH):
         (X,y) = (X.to(DEVICE), y.to(DEVICE))
 
         #actual trainign lol #####
-        predictions,_ = model(X)
+        predictions = model(X)
 
         loss = lossFunc(predictions, y)
 
@@ -137,19 +146,6 @@ for i in range(EPOCH):
             pred[pred > 254] = 254
             pred[pred < 0] = 0
             pred = pred.astype(np.uint8)
-
-            # #same as above
-            # example_pred, _ = ae(Xmple.to(DEVICE))
-            # ex_Ximg, _ = dataset.denormalize(copy(Xmple[0].detach().transpose(0,2).cpu().numpy()),None)
-            # ex_pred, ex_yimg = dataset.denormalize(copy(example_pred[0].detach().transpose(0,2).cpu().numpy()),copy(ymple[0].detach().transpose(0,2).cpu().numpy()))
-
-            # ex_Ximg = ex_Ximg.astype(np.uint8)
-            # ex_Ximg = cv.resize(ex_Ximg, yimg.shape[:2])
-            # ex_Ximg = cv.cvtColor(ex_Ximg,cv.COLOR_GRAY2BGR)
-            # ex_yimg = ex_yimg.astype(np.uint8)
-            # ex_pred[ex_pred > 254] = 254
-            # ex_pred[ex_pred < 0] = 0
-            # ex_pred = ex_pred.astype(np.uint8)
 
             cv.imshow("im",np.hstack([Ximg,yimg,pred]))
             #cv.imwrite(img_savepath+"img_"+str(i)+"_"+str(count)+".jpg",np.hstack([ex_Ximg,ex_yimg,ex_pred]))
