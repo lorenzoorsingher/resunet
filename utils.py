@@ -2,30 +2,34 @@ import os
 import argparse
 from dotenv import load_dotenv
 def parse_argv():
-  load_dotenv()
-  parser=argparse.ArgumentParser()
-  parser.add_argument("--json", help="Path where json file will be saved/read", default=os.getenv('JSON_PATH'))
-  parser.add_argument("--data", help="Path to the dataset",default=os.getenv('DATA_PATH'))
-  parser.add_argument("--save", help="Path to where checkpoints will be saved",default=os.getenv('SAVE_PATH'))
-  parser.add_argument("--insize", help="Size of input image",default=32)
-  parser.add_argument("--outsize", help="Size of output image",default=32)
-  parser.add_argument("--batch", help="Size of batches",default=32)
-  parser.add_argument("--epochs", help="Number of epochs",default=300)
+    load_dotenv()
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--json", help="Path where json file will be saved/read", default=os.getenv('JSON_PATH'))
+    parser.add_argument("--data", help="Path to the dataset",default=os.getenv('DATA_PATH'))
+    parser.add_argument("--save", help="Path to where checkpoints will be saved",default=os.getenv('SAVE_PATH'))
+    parser.add_argument("--insize", help="Size of input image",default=32)
+    parser.add_argument("--outsize", help="Size of output image",default=32)
+    parser.add_argument("--batch", help="Size of batches",default=32)
+    parser.add_argument("--epochs", help="Number of epochs",default=300)
 
-  parser.add_argument("--video", help="Number of batches between every visualization",default=10)
+    parser.add_argument("--video", help="Number of batches between every visualization",default=10)
 
-  parser.add_argument('--no-video', help = "Set for no visual debug", dest='video', action='store_false')
+    parser.add_argument('--no-video', help = "Set for no visual debug", dest='video', action='store_false')
 
-  parser.add_argument("--load-chkp", help="Path to checkpoints to be loaded",dest='loadchkp',default="")
+    parser.add_argument("--load-chkp", help="Path to checkpoints to be loaded",dest='loadchkp',default="")
 
-  ar=parser.parse_args()
+    parser.add_argument('--colab', help = "Set for no visual debug", dest='video', action='store_true')
+    parser.set_defaults(colab=False)
 
-  return (ar.json,
-          ar.data,
-          ar.save,
-          (ar.insize, ar.insize),
-          (ar.outsize, ar.outsize),
-          ar.batch,
-          ar.epochs,
-          ar.video,
-          ar.loadchkp)
+    ar=parser.parse_args()
+
+    return (ar.json,
+            ar.data,
+            ar.save,
+            (ar.insize, ar.insize),
+            (ar.outsize, ar.outsize),
+            ar.batch,
+            ar.epochs,
+            ar.video,
+            ar.loadchkp,
+            ar.colab)

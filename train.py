@@ -17,10 +17,14 @@ from utils import parse_argv
 
 
 
-jsonpath, datasetpath, SAVE_PATH, insize, outsize, BATCH, EPOCH, VIS_DEBUG, LOAD_CHKP = parse_argv()
+jsonpath, datasetpath, SAVE_PATH, insize, outsize, BATCH, EPOCH, VIS_DEBUG, LOAD_CHKP, COLAB = parse_argv()
 
 colorpath = datasetpath + "color/"
 bwpath = datasetpath + "bw/"
+
+if COLAB:
+    from google.colab.patches import cv2_imshow
+    cv.imshow = lambda n,i : cv2_imshow(i)
 
 LR = 1e-3
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
