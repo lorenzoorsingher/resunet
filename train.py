@@ -77,7 +77,7 @@ if (LOAD_CHKP != ""):
 
 model.train()
 
-model.freeze_backbone()
+#model.freeze_backbone()
 
 epoch = 0
 for i in range(EPOCH):
@@ -127,7 +127,7 @@ for i in range(EPOCH):
             pred = pred.astype(np.uint8)
 
             cv.imshow("im",np.hstack([Ximg,yimg,pred]))
-            #cv.imwrite(img_savepath+"img_"+str(i)+"_"+str(count)+".jpg",np.hstack([ex_Ximg,ex_yimg,ex_pred]))
+            cv.imwrite(img_savepath+"img_"+str(i)+"_"+str(count)+".jpg", np.hstack([Ximg,yimg,pred]))
             print("batch_loss: ", round(loss.sum().item()/BATCH,4))
             cv.waitKey(1)
 
