@@ -48,7 +48,7 @@ def parse_argv():
             ar.data,
             ar.save,
             (int(ar.insize), int(ar.insize)),
-            (ar.outsize, ar.outsize),
+            (int(ar.outsize), int(ar.outsize)),
             int(ar.batch),
             int(ar.epochs),
             ar.video,
