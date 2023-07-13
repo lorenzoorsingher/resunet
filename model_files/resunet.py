@@ -81,7 +81,7 @@ class ResNetUNet(nn.Module):
     def __init__(self):
         super().__init__()
         
-        self.base_model = models.resnet18(pretrained=True,)
+        self.base_model = models.resnet18(weights='IMAGENET1K_V1')
 
         self.layer1 = nn.Sequential(
                 UpBlock(512,256,True),
@@ -116,23 +116,24 @@ class ResNetUNet(nn.Module):
                     kernel_size=2,
                     stride=2,
                     padding=0,
-                    bias=False,
+                    bias=True,
                 )
         )
 
-        self.convBw = nn.Conv2d(
-            1,
-            3,
-            kernel_size=1,
-            stride=1,
-            padding=0
-        )
+        # self.convBw = nn.Conv2d(
+        #     1,
+        #     3,
+        #     kernel_size=1,
+        #     stride=1,
+        #     padding=0
+        # )
 
         
     def forward(self, x):
         
-        x = self.convBw(x)
-
+        #breakpoint()
+        x = x.expand(x.shape[0],3,x.shape[2],x.shape[3])
+        #breakpoint()
         x = self.base_model.conv1(x)
         x = self.base_model.bn1(x)
         x = self.base_model.relu(x)
