@@ -66,7 +66,7 @@ lossFunc = lpips_loss
 #if set, load the a saved checkpoint
 if (LOAD_CHKP != ""):
     chkp_path = LOAD_CHKP
-    checkpoint = torch.load(chkp_path)
+    checkpoint = torch.load(chkp_path,map_location=torch.device(DEVICE))
     model.load_state_dict(checkpoint['model_state_dict'])
     opt.load_state_dict(checkpoint['optimizer_state_dict'])
     epoch = checkpoint['epoch']
