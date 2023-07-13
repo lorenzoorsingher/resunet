@@ -74,7 +74,11 @@ if (LOAD_CHKP != ""):
 
 
 #training loop
+
 model.train()
+
+model.freeze_backbone()
+
 epoch = 0
 for i in range(EPOCH):
     print("############################### EPOCH ",i,"#####################################################################\n")
