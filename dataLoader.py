@@ -86,7 +86,7 @@ class CustomDataset(Dataset):
 
         Ximg, yimg = self.normalize(Ximg, yimg)
 
-        Ximg_tensor = torch.tensor([Ximg])
+        Ximg_tensor = torch.tensor(np.array([Ximg]))
         yimg_tensor = torch.tensor(yimg)
 
         Ximg_tensor = Ximg_tensor.permute(0, 2, 1)
