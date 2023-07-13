@@ -43,27 +43,14 @@ def parse_argv():
  
 
     ar=parser.parse_args()
-    return (ar.json,
-            ar.data,
-            ar.save,
-            (ar.insize, ar.insize),
-            (ar.outsize, ar.outsize),
-            ar.batch,
-            ar.epochs,
-            ar.video,
-            ar.loadchkp,
-            ar.colab)
-    
-
-    ar=parser.parse_args()
 
     return (ar.json,
             ar.data,
             ar.save,
-            (ar.insize, ar.insize),
+            (int(ar.insize), int(ar.insize)),
             (ar.outsize, ar.outsize),
-            ar.batch,
-            ar.epochs,
+            int(ar.batch),
+            int(ar.epochs),
             ar.video,
             ar.loadchkp,
             ar.colab)
