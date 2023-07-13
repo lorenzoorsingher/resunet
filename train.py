@@ -1,5 +1,3 @@
-#@title Training Loop
-
 import os
 import time
 from copy import copy
@@ -61,15 +59,22 @@ if DEVICE == "cuda":
   lpips_loss.cuda()
 lossFunc = lpips_loss
 
-
+epoch = 0
 
 #if set, load the a saved checkpoint
 if (LOAD_CHKP != ""):
     chkp_path = LOAD_CHKP
+
+    if ".chkp" not in chkp_path:
+        arr = [ x if ".chkp" in x else "0" for x in os.listdir(chkp_path)]
+        arr.sort
+        chkp_path = chkp_path + arr[-1]
+        #epoch = int(arr[-1].split('_')[-1].split('.')[0]) + 1
+    #breakpoint()
     checkpoint = torch.load(chkp_path,map_location=torch.device(DEVICE))
     model.load_state_dict(checkpoint['model_state_dict'])
     opt.load_state_dict(checkpoint['optimizer_state_dict'])
-    epoch = checkpoint['epoch']
+    epoch = checkpoint['epoch'] + 1
 
 
 
@@ -79,8 +84,9 @@ model.train()
 
 #model.freeze_backbone()
 
-epoch = 0
-for i in range(EPOCH):
+loss_dict = {}
+
+for i in range(epoch, EPOCH):
     print("############################### EPOCH ",i,"#####################################################################\n")
 
     epoch_start = time.time()
@@ -88,7 +94,7 @@ for i in range(EPOCH):
     batchItems = 0
     stop = True
     count = 0
-
+    loss_dict["epoch_"+str(i)] = {}
     #loop thru single batch
     for batch_id, (X,y) in enumerate(data_loader):
 
@@ -131,13 +137,16 @@ for i in range(EPOCH):
             print("batch_loss: ", round(loss.sum().item()/BATCH,4))
             cv.waitKey(1)
 
+            loss_dict["epoch_"+str(i)]["batch_"+str(count/VIS_DEBUG)] = round(loss.sum().item()/BATCH,5)
+            save_loss(loss_dict, current_savepath)
+            #breakpoint()
         epochLoss += loss.sum().item()
         batchItems += BATCH
     epoch_end = time.time()
     epoch_time = epoch_end - epoch_start
     print("\nepoch_time: ",round(epoch_time,2), " seconds")
     print("epoch_loss: ", round(epochLoss/batchItems,8))
-
+    loss_dict["epoch_"+str(i)]["epochloss"] = epochLoss
     #save checkpoint
     print("[SAVE] saving checkpoint...")
     torch.save({

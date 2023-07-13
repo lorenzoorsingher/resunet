@@ -1,3 +1,4 @@
+import json
 import os
 import argparse
 from dotenv import load_dotenv
@@ -54,3 +55,8 @@ def parse_argv():
             ar.video,
             ar.loadchkp,
             ar.colab)
+
+
+def save_loss(dict, path):
+    with open(path + "loss.json", 'w') as fp:
+        json.dump(dict, fp)
