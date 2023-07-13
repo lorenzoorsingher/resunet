@@ -1,0 +1,6 @@
+lpips==0.1.4
+numpy==1.25.0
+onnx==1.14.0
+opencv-contrib-python==4.8.0.74
+pip==23.1.2
+python-dotenv==1.0.0
