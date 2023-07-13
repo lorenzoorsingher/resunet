@@ -9,28 +9,19 @@ from torch.utils.data import DataLoader
 from torch.optim import SGD
 import numpy as np
 import cv2 as cv
-from dotenv import load_dotenv
+import lpips
 
 from model_files.resunet import ResNetUNet
 from dataLoader import CustomDataset
+from utils import parse_argv
 
-import lpips
 
-load_dotenv()
-# Xmple_path = os.getenv('XMPLE_PATH')
-# ymple_path = os.getenv('YMPLE_PATH')
-jsonpath = os.getenv('JSON_PATH')
-datasetpath = os.getenv('DATA_PATH')
+
+jsonpath, datasetpath, SAVE_PATH, insize, outsize, BATCH, EPOCH, VIS_DEBUG, LOAD_CHKP = parse_argv()
+
 colorpath = datasetpath + "color/"
 bwpath = datasetpath + "bw/"
-savepath = os.getenv('SAVE_PATH')
 
-LOAD_CHKP = False
-VIS_DEBUG = True
-SAVE_PATH = savepath
-BATCH = 32
-EPOCH = 300
-VISUAL = 1
 LR = 1e-3
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print("[INFO] training using {}...".format(DEVICE))
@@ -49,7 +40,6 @@ os.mkdir(img_savepath)
 #ae = model.SimplerAE2().to(DEVICE)
 model = ResNetUNet().to(DEVICE)
 
-insize, outsize = ((32,32),(32,32))
 #load the custom dattaset and correspondent dataloader
 dataset = CustomDataset(insize, outsize, datasetpath, jsonpath)
 data_loader = DataLoader(dataset, batch_size=BATCH, shuffle=True)
@@ -70,33 +60,14 @@ lossFunc = lpips_loss
 
 
 #if set, load the a saved checkpoint
-if (LOAD_CHKP):
-    chkp_path = "checkpoints/run_1688680178/checkpoint_8.chkp"
+if (LOAD_CHKP != ""):
+    chkp_path = LOAD_CHKP
     checkpoint = torch.load(chkp_path)
     model.load_state_dict(checkpoint['model_state_dict'])
     opt.load_state_dict(checkpoint['optimizer_state_dict'])
     epoch = checkpoint['epoch']
 
-# ### load example image (not from dataset)
-# Xmple = cv.imread(Xmple_path)
-# ymple = cv.imread(ymple_path)
-# Xmple = cv.cvtColor(Xmple, cv.COLOR_BGR2GRAY)
 
-# Xmple = cv.resize(Xmple, dataset.insize)
-# ymple = cv.resize(ymple, dataset.outsize)
-
-# Xmple, ymple = dataset.normalize(Xmple, ymple)
-
-# Xmple = torch.tensor([[Xmple]])
-# ymple = torch.tensor([ymple])
-
-# Xmple = Xmple.permute(0,1, 3, 2)
-# ymple = ymple.permute(0,3, 2, 1)
-# Xmple = Xmple.float()
-# ymple = ymple.float()
-# ########################################
-
-#cv.namedWindow("encode_decode_result", cv.WINDOW_NORMAL)
 
 #training loop
 model.train()
@@ -130,7 +101,7 @@ for i in range(EPOCH):
         ##########################
 
         count+=1
-        if count%VISUAL==0 and VIS_DEBUG:
+        if VIS_DEBUG != False and count%VIS_DEBUG==0 :
 
             #basically multiply std and add mean for each channel
             Ximg, _ = dataset.denormalize(copy(X[0].detach().transpose(0,2).cpu().numpy()),None)
