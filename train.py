@@ -127,7 +127,7 @@ for i in range(epoch, EPOCH):
         msssim_val = LossMSSSIM(predZeroMax, yZeroMax)
         #breakpoint()
         #print(loss1, " ", loss2)
-        loss = lpips_val + 0.75 * msssim_val + 0.05 * mse_val
+        loss = lpips_val + 0.5 * msssim_val + 0.15 * mse_val
 
         opt.zero_grad()
         #breakpoint()
