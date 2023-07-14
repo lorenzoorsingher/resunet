@@ -184,10 +184,11 @@ class CustomDataset(Dataset):
         return Ximg, yimg
 
     def tensor_as_img(self, ten):
+        ten[ten >= 254] = 254
+        ten[ten <= 0] = 0
         ten = ten.astype(np.uint8)
         ten = cv.resize(ten, self.outsize)
-        ten[ten > 254] = 254
-        ten[ten < 0] = 0
+
         return ten
 
 
