@@ -52,7 +52,7 @@ def parse_argv():
             (int(ar.outsize), int(ar.outsize)),
             int(ar.batch),
             int(ar.epochs),
-            ar.video,
+            int(ar.video),
             ar.loadchkp,
             ar.colab)
 
