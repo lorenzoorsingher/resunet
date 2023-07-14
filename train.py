@@ -10,6 +10,7 @@ from torch.nn import MSELoss
 import numpy as np
 import cv2 as cv
 import lpips
+from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
 
 from model_files.resunet import ResNetUNet
 from dataLoader import CustomDataset
@@ -61,9 +62,11 @@ opt = SGD(model.parameters(), lr=LR)
 lpips_loss = lpips.LPIPS(net='alex')
 if DEVICE == "cuda":
   lpips_loss.cuda()
-lossFunc = lpips_loss
+LossLPIPS = lpips_loss
 
-lossFunc2 = MSELoss()
+LossMSE = MSELoss()
+
+LossMSSSIM = MS_SSIM(data_range=255, size_average=True, channel=3)
 
 epoch = 0
 
@@ -111,33 +114,20 @@ for i in range(epoch, EPOCH):
 
         #actual trainign lol #####
         predictions = model(X)
-        #breakpoint()
-        # _, denom_y = dataset.denormalize_loss(None, y)
-        # _, denom_pred = dataset.denormalize_loss(None, predictions)
-        # denom_y = denom_y[0].permute(1,2,0).cpu().numpy()
-        # denom_x = denom_x[0].permute(1,2,0).cpu().numpy()
-        # denom_y = dataset.tensor_as_img(denom_y)
-        # denom_x = dataset.tensor_as_img(denom_x)
-        # ynew = dataset.invTransformCol(y)[0].permute(1,2,0).numpy()
-        # Xnew = dataset.invTransformBw(X)[0].permute(1,2,0).numpy()
-        xnew = dataset.UnBw(X)[0].permute(1,2,0).numpy()
-        ynew = dataset.UnCol(y)[0].permute(1,2,0).numpy()
 
-        # print(ynew.min(), "   ", ynew.min())
-        # print(ynew.max(), "   ", ynew.max())
-        #breakpoint()
-        # cv.imshow("im",denom_y)
+        yZeroMax = dataset.UnCol(y)
+        predZeroMax = dataset.UnCol(predictions)
 
-        # cv.imshow("im2",np.hstack([dataset.tensor_as_img(ynew),cv.cvtColor(dataset.tensor_as_img(xnew),cv.COLOR_GRAY2BGR)]) )
-        # cv.waitKey(1)
+        yNorm = ((yZeroMax*2)/255 - 1)
+        predNorm = ((predZeroMax*2)/255 - 1)
 
-        #breakpoint()
 
-        loss1 = lossFunc(predictions, y).mean()
-        loss2 = lossFunc2(predictions, y)
+        lpips_val = LossLPIPS(predNorm, yNorm).mean()
+        mse_val = LossMSE(predictions, y)
+        msssim_val = LossMSSSIM(predZeroMax, yZeroMax)
         #breakpoint()
-        print(loss1, " ", loss2)
-        loss = loss1 + loss2
+        #print(loss1, " ", loss2)
+        loss = lpips_val + 0.75 * msssim_val + 0.05 * mse_val
 
         opt.zero_grad()
         #breakpoint()
