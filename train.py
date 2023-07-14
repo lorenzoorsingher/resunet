@@ -91,7 +91,7 @@ if (LOAD_CHKP != ""):
 
 model.train()
 
-#model.freeze_backbone()
+model.freeze_backbone()
 
 loss_dict = {}
 
