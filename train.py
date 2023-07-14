@@ -57,8 +57,8 @@ print(params, " total params")
 print(model)
 
 #setup optimizer and loss function
-opt = SGD(model.parameters(), lr=LR)
-#opt = Adam(model_parameters, lr=1e-3, betas=(0.9, 0.999))
+#opt = SGD(model.parameters(), lr=LR)
+opt = Adam(model.parameters(), lr=LR, betas=(0.9, 0.999))
 lpips_loss = lpips.LPIPS(net='alex')
 if DEVICE == "cuda":
   lpips_loss.cuda()
