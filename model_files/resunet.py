@@ -273,6 +273,10 @@ class ResNetUNetPS(nn.Module):
                 UpBlockPS(32,32,False)
         )
         
+        self.layer5 = nn.Sequential(
+                UpBlockPS(96,24,True),
+                UpBlockPS(24,24,False)
+        )
         self.out = nn.Sequential(
 
             # nn.ConvTranspose2d(
@@ -285,11 +289,11 @@ class ResNetUNetPS(nn.Module):
             #     ),
             # nn.ReLU(),
             # nn.BatchNorm2d(64),
-            nn.ConvTranspose2d(
-                    32,
+            nn.Conv2d(
+                    27,
                     3,
-                    kernel_size=2,
-                    stride=2,
+                    kernel_size=1,
+                    stride=1,
                     padding=0,
                     bias=True,
                 )
@@ -307,12 +311,12 @@ class ResNetUNetPS(nn.Module):
     def forward(self, x):
         
         #breakpoint()
-        x = x.expand(x.shape[0],3,x.shape[2],x.shape[3])
+        xog = x.expand(x.shape[0],3,x.shape[2],x.shape[3])
         #breakpoint()
-        x = self.base_model.conv1(x)
+        x = self.base_model.conv1(xog)
         x = self.base_model.bn1(x)
-        x = self.base_model.relu(x)
-        x1 = self.base_model.maxpool(x)
+        x0 = self.base_model.relu(x)
+        x1 = self.base_model.maxpool(x0)
 
         x2 = self.base_model.layer1(x1)
         x3 = self.base_model.layer2(x2)
@@ -327,6 +331,11 @@ class ResNetUNetPS(nn.Module):
         x = self.layer3(x)
         x = torch.cat((x,x2),1)
         x = self.layer4(x)
+        #breakpoint()
+        x = torch.cat((x,x0),1)
+        x = self.layer5(x)
+        x = torch.cat((x,xog),1)
+        #breakpoint()
         out = self.out(x)
 
         return out
