@@ -99,16 +99,7 @@ class UpBlockPS(nn.Module):
                             stride=1,
                             padding=0,
                             bias=False)
-                )
-            # self.conv1 = nn.ConvTranspose2d(
-            #         inplanes,
-            #         planes,
-            #         kernel_size=2,
-            #         stride=2,
-            #         padding=0,
-            #         bias=False,
-            #     )
-            
+                )            
             self.pshuffle1 = nn.PixelShuffle(2)
         else:
             self.upsample = None
@@ -200,15 +191,6 @@ class ResNetUNet(nn.Module):
                     bias=True,
                 )
         )
-
-        # self.convBw = nn.Conv2d(
-        #     1,
-        #     3,
-        #     kernel_size=1,
-        #     stride=1,
-        #     padding=0
-        # )
-
         
     def forward(self, x):
         
@@ -278,17 +260,6 @@ class ResNetUNetPS(nn.Module):
                 UpBlockPS(24,24,False)
         )
         self.out = nn.Sequential(
-
-            # nn.ConvTranspose2d(
-            #         128,
-            #         64,
-            #         kernel_size=2,
-            #         stride=2,
-            #         padding=0,
-            #         bias=False,
-            #     ),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(64),
             nn.Conv2d(
                     25,
                     3,
@@ -299,22 +270,12 @@ class ResNetUNetPS(nn.Module):
                 )
         )
 
-        # self.convBw = nn.Conv2d(
-        #     1,
-        #     3,
-        #     kernel_size=1,
-        #     stride=1,
-        #     padding=0
-        # )
-
         
     def forward(self, x):
         
-        #breakpoint()
         
         x = x.expand(x.shape[0],3,x.shape[2],x.shape[3])
         xog = x[:,0,:,:].unsqueeze(1)
-        #breakpoint()
         x = self.base_model.conv1(x)
         x = self.base_model.bn1(x)
         x0 = self.base_model.relu(x)
@@ -324,7 +285,6 @@ class ResNetUNetPS(nn.Module):
         x3 = self.base_model.layer2(x2)
         x4 = self.base_model.layer3(x3)
         x5 = self.base_model.layer4(x4)
-        #breakpoint()
 
         x = self.layer1(x5)
         x = torch.cat((x,x4),1)
@@ -333,11 +293,9 @@ class ResNetUNetPS(nn.Module):
         x = self.layer3(x)
         x = torch.cat((x,x2),1)
         x = self.layer4(x)
-        #breakpoint()
         x = torch.cat((x,x0),1)
         x = self.layer5(x)
         x = torch.cat((x,xog),1)
-        #breakpoint()
         out = self.out(x)
 
         return out
