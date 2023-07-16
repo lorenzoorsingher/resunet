@@ -59,7 +59,7 @@ print(model)
 #setup optimizer and loss function
 #opt = SGD(model.parameters(), lr=LR)
 opt = Adam(model.parameters(), lr=LR, betas=(0.9, 0.999))
-lpips_loss = lpips.LPIPS(net='alex')
+lpips_loss = lpips.LPIPS(net='vgg')
 if DEVICE == "cuda":
   lpips_loss.cuda()
 LossLPIPS = lpips_loss
@@ -67,6 +67,9 @@ LossLPIPS = lpips_loss
 LossMSE = MSELoss()
 
 LossMSSSIM = MS_SSIM(data_range=255, size_average=True, channel=3)
+
+LossSSIM = SSIM(data_range=255, size_average=True, channel=3, nonnegative_ssim=True)
+
 
 epoch = 0
 
@@ -124,10 +127,12 @@ for i in range(epoch, EPOCH):
 
         lpips_val = LossLPIPS(predNorm, yNorm).mean()
         mse_val = LossMSE(predictions, y)
-        msssim_val = LossMSSSIM(predZeroMax, yZeroMax)
+        #msssim_val = LossMSSSIM(predZeroMax, yZeroMax)
+        ssim_val = LossSSIM(predZeroMax, yZeroMax)
+
         #breakpoint()
-        #print(loss1, " ", loss2)
-        loss = lpips_val + 0.5 * msssim_val + 0.15 * mse_val
+        #print(round(msssim_val.item(),5), " ", round(ssim_val.item(),5))
+        loss = lpips_val + 0.75 * ssim_val + 0.05 * mse_val
 
         opt.zero_grad()
         #breakpoint()
