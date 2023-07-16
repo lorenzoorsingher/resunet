@@ -214,7 +214,7 @@ class ResNetUNet(nn.Module):
         
         #breakpoint()
         x = x.expand(x.shape[0],3,x.shape[2],x.shape[3])
-        breakpoint()
+        #breakpoint()
         x = self.base_model.conv1(x)
         x = self.base_model.bn1(x)
         x = self.base_model.relu(x)
@@ -224,19 +224,16 @@ class ResNetUNet(nn.Module):
         x3 = self.base_model.layer2(x2)
         x4 = self.base_model.layer3(x3)
         x = self.base_model.layer4(x4)
-        
+
         x = self.layer1(x)
 
         x = torch.cat((x,x4),1)
-
-        #breakpoint()
         x = self.layer2(x)
         x = torch.cat((x,x3),1)
         x = self.layer3(x)
         x = torch.cat((x,x2),1)
         out = self.out(x)
 
-        out = x
         return out
     
     def freeze_backbone(self):
@@ -248,7 +245,6 @@ class ResNetUNet(nn.Module):
         for param in self.base_model.parameters():
             param.requires_grad = True
             self.base_model.train(True)
-
 
 class ResNetUNetPS(nn.Module):
 
