@@ -62,18 +62,22 @@ class NormalizeInverse(torchvision.transforms.Normalize):
 class CustomDataset(Dataset):
     def __init__(self, insize, outsize, datapath, jsonpath):
 
-        self.path = datapath
-        self.colorpath = self.path + "color/"
-        self.bwpath = self.path + "bw/"
+        
         self.jsonpath = jsonpath
         self.data = []
-        tot_files = len(os.listdir(self.colorpath))
 
-        for i in range(tot_files):
-            Xpath = self.colorpath + "color_"+str(i)+".jpg"
-            ypath = self.bwpath + "bw_"+str(i)+".jpg"
-            if os.path.exists(Xpath) and os.path.exists(ypath):
-                self.data.append([Xpath,ypath])
+        if datapath is not None:
+            self.path = datapath
+            self.colorpath = self.path + "color/"
+            self.bwpath = self.path + "bw/"
+
+            tot_files = len(os.listdir(self.colorpath))
+
+            for i in range(tot_files):
+                Xpath = self.colorpath + "color_"+str(i)+".jpg"
+                ypath = self.bwpath + "bw_"+str(i)+".jpg"
+                if os.path.exists(Xpath) and os.path.exists(ypath):
+                    self.data.append([Xpath,ypath])
         
         # Opening JSON file
         f = open(self.jsonpath + 'data.json')
@@ -195,33 +199,24 @@ class CustomDataset(Dataset):
     def __len__(self):
         return len(self.data)
     
+    def prepareImg(self, bw_img, color_img):
+
+        xn = yn = None
+
+        if bw_img is not None:
+            Ximg = cv2.cvtColor(bw_img, cv2.COLOR_BGR2GRAY)
+            Ximg = cv2.resize(Ximg, self.insize)
+            xn = self.NBw(torch.tensor(Ximg).unsqueeze(0).float())
+
+        if color_img is not None:
+            yimg = cv2.resize(color_img, self.outsize)
+            yn = self.NCol(torch.tensor(yimg).permute(2,0,1).float())
+
+        return xn, yn
+
     def __getitem__(self, idx):
         color_path, bw_path = self.data[idx]
-
         Ximg = cv2.imread(bw_path)
         yimg = cv2.imread(color_path)
-
-        Ximg = cv2.cvtColor(Ximg, cv2.COLOR_BGR2GRAY)
-
-        Ximg = cv2.resize(Ximg, self.insize)
-        yimg = cv2.resize(yimg, self.outsize)
-
-        # Ximg, yimg = self.normalize(Ximg, yimg)
-
-        # Ximg_tensor = torch.tensor(Ximg).unsqueeze(0)
-        # yimg_tensor = torch.tensor(yimg)
-        # #breakpoint()
-        # yimg_tensor = yimg_tensor.permute(2, 1, 0)
-
-        xn = self.NBw(torch.tensor(Ximg).unsqueeze(0).float())
-
-        yn = self.NCol(torch.tensor(yimg).permute(2,0,1).float())
-
-        #uny = self.UNC2(yn)
-        #uxn = self.UnBw(xn)
-        # uyn = self.UnCol(yn)
-
-        # print(uyn.min(), " ", uyn.max())
-        #print(uxn.min(), " ", uxn.max())
-        #breakpoint()
+        xn, yn = self.prepareImg(Ximg, yimg)
         return xn, yn
