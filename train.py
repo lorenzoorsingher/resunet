@@ -10,11 +10,13 @@ from torch.nn import MSELoss
 import numpy as np
 import cv2 as cv
 import lpips
-from pytorch_msssim import ssim, ms_ssim, SSIM, MS_SSIM
+from pytorch_msssim import SSIM, MS_SSIM
+from torchsummary import summary
 
-from model_files.resunet import ResNetUNet
+
+
+from model_files.resunet import ResNetUNet, ResNetUNetPS
 from dataLoader import CustomDataset
-
 from utils import parse_argv, save_loss
 
 
@@ -44,7 +46,7 @@ os.mkdir(img_savepath)
 
 #load the model
 #ae = model.SimplerAE2().to(DEVICE)
-model = ResNetUNet().to(DEVICE)
+model = ResNetUNetPS().to(DEVICE)
 
 #load the custom dattaset and correspondent dataloader
 dataset = CustomDataset(insize, outsize, datasetpath, jsonpath)
@@ -55,7 +57,7 @@ model_parameters = filter(lambda p: p.requires_grad, model.parameters())
 params = sum([np.prod(p.size()) for p in model_parameters])
 print(params, " total params")
 print(model)
-
+print(summary(model, (3,224,224)))
 #setup optimizer and loss function
 #opt = SGD(model.parameters(), lr=LR)
 opt = Adam(model.parameters(), lr=LR, betas=(0.9, 0.999))
