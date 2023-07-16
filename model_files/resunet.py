@@ -290,7 +290,7 @@ class ResNetUNetPS(nn.Module):
             # nn.ReLU(),
             # nn.BatchNorm2d(64),
             nn.Conv2d(
-                    27,
+                    25,
                     3,
                     kernel_size=1,
                     stride=1,
@@ -311,9 +311,11 @@ class ResNetUNetPS(nn.Module):
     def forward(self, x):
         
         #breakpoint()
-        xog = x.expand(x.shape[0],3,x.shape[2],x.shape[3])
+        
+        x = x.expand(x.shape[0],3,x.shape[2],x.shape[3])
+        xog = x[:,0,:,:].unsqueeze(1)
         #breakpoint()
-        x = self.base_model.conv1(xog)
+        x = self.base_model.conv1(x)
         x = self.base_model.bn1(x)
         x0 = self.base_model.relu(x)
         x1 = self.base_model.maxpool(x0)
