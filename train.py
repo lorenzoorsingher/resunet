@@ -17,11 +17,11 @@ from torchsummary import summary
 
 from model_files.resunet import ResNetUNet, ResNetUNetPS
 from dataLoader import CustomDataset
-from utils import parse_argv, save_loss
+from utils import parse_argv_train, save_loss
 
 
 
-jsonpath, datasetpath, SAVE_PATH, insize, outsize, BATCH, EPOCH, VIS_DEBUG, LOAD_CHKP, COLAB = parse_argv()
+jsonpath, datasetpath, SAVE_PATH, insize, outsize, BATCH, EPOCH, VIS_DEBUG, LOAD_CHKP, COLAB = parse_argv_train()
 
 colorpath = datasetpath + "color/"
 bwpath = datasetpath + "bw/"
