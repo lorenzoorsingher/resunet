@@ -230,7 +230,7 @@ class ResNetUNet(nn.Module):
 
 class ResNetUNetPS(nn.Module):
 
-    def __init__(self,rgb_in=True):
+    def __init__(self,rgb_in=True, lastskip = False):
         super().__init__()
         
         self.base_model = models.resnet18(weights='IMAGENET1K_V1')
@@ -261,10 +261,14 @@ class ResNetUNetPS(nn.Module):
         )
 
         self.rgb_in = rgb_in
-        if self.rgb_in:
-            last_layer_c = 27
+        self.lastskip = lastskip
+        if lastskip:
+            if self.rgb_in:
+                last_layer_c = 27
+            else:
+                last_layer_c = 25
         else:
-            last_layer_c = 25
+            last_layer_c = 24
         self.out = nn.Sequential(
             nn.Conv2d(
                     last_layer_c,
@@ -307,7 +311,8 @@ class ResNetUNetPS(nn.Module):
         x = self.layer4(x)
         x = torch.cat((x,x0),1)
         x = self.layer5(x)
-        x = torch.cat((x,xog),1)
+        if self.lastskip:
+            x = torch.cat((x,xog),1)
         out = self.out(x)
 
         return out
