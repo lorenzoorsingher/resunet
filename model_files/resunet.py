@@ -230,7 +230,7 @@ class ResNetUNet(nn.Module):
 
 class ResNetUNetPS(nn.Module):
 
-    def __init__(self):
+    def __init__(self,rgb_in=True):
         super().__init__()
         
         self.base_model = models.resnet18(weights='IMAGENET1K_V1')
@@ -259,9 +259,15 @@ class ResNetUNetPS(nn.Module):
                 UpBlockPS(96,24,True),
                 UpBlockPS(24,24,False)
         )
+
+        self.rgb_in = rgb_in
+        if self.rgb_in:
+            last_layer_c = 27
+        else:
+            last_layer_c = 25
         self.out = nn.Sequential(
             nn.Conv2d(
-                    25,
+                    last_layer_c,
                     3,
                     kernel_size=1,
                     stride=1,
@@ -271,11 +277,17 @@ class ResNetUNetPS(nn.Module):
         )
 
         
+
+        
     def forward(self, x):
         
-        
-        x = x.expand(x.shape[0],3,x.shape[2],x.shape[3])
-        xog = x[:,0,:,:].unsqueeze(1)
+        #breakpoint()
+        if self.rgb_in:
+            xog = x
+        else:
+            x = x.expand(x.shape[0],3,x.shape[2],x.shape[3])
+            xog = x[:,0,:,:].unsqueeze(1)
+        #breakpoint()
         x = self.base_model.conv1(x)
         x = self.base_model.bn1(x)
         x0 = self.base_model.relu(x)

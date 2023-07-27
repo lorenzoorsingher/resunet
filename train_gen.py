@@ -47,7 +47,7 @@ os.mkdir(img_savepath)
 
 #load the model
 #ae = model.SimplerAE2().to(DEVICE)
-model = ResNetUNetPS().to(DEVICE)
+model = ResNetUNetPS(rgb_in=True).to(DEVICE)
 
 
 # trainA = "/home/lollo/Documents/tesi/data/take_11_dataset/HR/"

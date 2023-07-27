@@ -46,7 +46,7 @@ os.mkdir(img_savepath)
 
 #load the model
 #ae = model.SimplerAE2().to(DEVICE)
-model = ResNetUNetPS().to(DEVICE)
+model = ResNetUNetPS(rgb_in=False).to(DEVICE)
 
 #load the custom dattaset and correspondent dataloader
 dataset = CustomDataset(insize, outsize, datasetpath, jsonpath)
