@@ -260,6 +260,11 @@ class ResNetUNetPS(nn.Module):
                 UpBlockPS(24,24,False)
         )
 
+        self.outUp = nn.Sequential(
+                UpBlockPS(24,6,True),
+                UpBlockPS(6,6,False)
+        )
+
         self.rgb_in = rgb_in
         self.lastskip = lastskip
         if lastskip:
@@ -269,6 +274,7 @@ class ResNetUNetPS(nn.Module):
                 last_layer_c = 25
         else:
             last_layer_c = 24
+        last_layer_c = 6
         self.out = nn.Sequential(
             nn.Conv2d(
                     last_layer_c,
@@ -313,6 +319,9 @@ class ResNetUNetPS(nn.Module):
         x = self.layer5(x)
         if self.lastskip:
             x = torch.cat((x,xog),1)
+
+        x = self.outUp(x)
+        
         out = self.out(x)
 
         return out
