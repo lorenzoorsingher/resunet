@@ -52,8 +52,7 @@ model = ResNetUNetPS(rgb_in=True).to(DEVICE)
 
 # trainA = "/home/lollo/Documents/tesi/data/take_11_dataset/HR/"
 # trainB = "/home/lollo/Documents/tesi/data/take_11_dataset/LR/"
-jsonpath = "/home/lollo/Documents/tesi/data/take_11_dataset/"
-datasetpath = "/home/lollo/Documents/tesi/data/take_11_dataset/"
+breakpoint()
 #load the custom dattaset and correspondent dataloader
 dataset = CustomDatasetGen(insize, outsize, datasetpath, jsonpath)
 data_loader = DataLoader(dataset, batch_size=BATCH, shuffle=True)
