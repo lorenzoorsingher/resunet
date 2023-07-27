@@ -66,6 +66,8 @@ if inpath == "":
     inpath = "data/bwme.jpg"
 
 input_img = cv.imread(inpath)
+input_img = cv.cvtColor(input_img, cv.COLOR_BGR2GRAY)
+input_img = cv.cvtColor(input_img, cv.COLOR_GRAY2BGR)
 
 X = dataset.prepareImg(input_img, None)[0].unsqueeze(0)
 
