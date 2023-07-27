@@ -24,8 +24,6 @@ from utils import parse_argv_train, save_loss
 
 jsonpath, datasetpath, SAVE_PATH, insize, outsize, BATCH, EPOCH, VIS_DEBUG, LOAD_CHKP, COLAB = parse_argv_train()
 
-colorpath = datasetpath + "color/"
-bwpath = datasetpath + "bw/"
 
 if COLAB:
     from google.colab.patches import cv2_imshow
@@ -52,7 +50,6 @@ model = ResNetUNetPS(rgb_in=True).to(DEVICE)
 
 # trainA = "/home/lollo/Documents/tesi/data/take_11_dataset/HR/"
 # trainB = "/home/lollo/Documents/tesi/data/take_11_dataset/LR/"
-breakpoint()
 #load the custom dattaset and correspondent dataloader
 dataset = CustomDatasetGen(insize, outsize, datasetpath, jsonpath)
 data_loader = DataLoader(dataset, batch_size=BATCH, shuffle=True)
